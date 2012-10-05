@@ -1,11 +1,8 @@
 /*
  * photo.js
+ *
+ * Copyright 2012 Koen Romers
  * http://www.koenromers.com
- *
- * Copyright 2012
- *
- * Date: 05/10/2012
- * Author: Koen Romers
  */
 var mongo = require('../mongo');
 
