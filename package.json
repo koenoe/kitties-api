@@ -1,11 +1,17 @@
 {
-	"name": "Kitties API",
-	"version": "0.0.1",
-	"private": true,
-	"scripts": {
-		"start": "node app"
-	},
-	"dependencies": {
-		"express": "3.0.0rc4"
-	}
+  "name": "kitties-api",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "3",
+    "express-namespace": "0",
+    "mongoose": "3",
+    "cron": "1"
+  },
+  "engines": {
+    "node": "0.8.11",
+    "npm": "1.1.49"
+  }
 }

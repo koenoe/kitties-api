@@ -1,0 +1,1 @@
+A RESTful api written in Node.js to collect pictures from 500px and Flickr matching a certain keyword. In this example: kittens!

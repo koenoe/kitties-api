@@ -88,16 +88,22 @@ MongooseArray.prototype._cast = function (value) {
  * @api private
  */
 
-MongooseArray.prototype._markModified = function (embeddedDoc, embeddedPath) {
+MongooseArray.prototype._markModified = function (elem, embeddedPath) {
   var parent = this._parent
     , dirtyPath;
 
   if (parent) {
+    dirtyPath = this._path;
+
     if (arguments.length) {
-      // If an embedded doc bubbled up the change
-      dirtyPath = [this._path, this.indexOf(embeddedDoc), embeddedPath].join('.');
-    } else {
-      dirtyPath = this._path;
+      if (null != embeddedPath) {
+        // an embedded doc bubbled up the change
+        dirtyPath = dirtyPath + '.' + this.indexOf(elem) + '.' + embeddedPath;
+      } else {
+        // directly set an index
+        dirtyPath = dirtyPath + '.' + elem;
+      }
+
     }
     parent.markModified(dirtyPath);
   }
@@ -394,7 +400,7 @@ MongooseArray.prototype.pull = function () {
 };
 
 /**
- * Wraps [`Array#splice`](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/splice) with proper change tracking.
+ * Wraps [`Array#splice`](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/splice) with proper change tracking and casting.
  *
  * ####Note:
  *
@@ -403,13 +409,22 @@ MongooseArray.prototype.pull = function () {
  * @api public
  */
 
-MongooseArray.prototype.splice = function () {
+MongooseArray.prototype.splice = function splice () {
+  var ret, vals, i;
+
   if (arguments.length) {
-    var ret = [].splice.apply(this, arguments);
+    vals = [];
+    for (i = 0; i < arguments.length; ++i) {
+      vals[i] = i < 2
+        ? arguments[i]
+        : this._cast(arguments[i]);
+    }
+    ret = [].splice.apply(this, vals);
     this._registerAtomic('$set', this);
   }
+
   return ret;
-};
+}
 
 /**
  * Wraps [`Array#unshift`](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/unshift) with proper change tracking.
@@ -489,6 +504,37 @@ MongooseArray.prototype.addToSet = function addToSet () {
 
   return added;
 };
+
+/**
+ * Sets the casted `val` at index `i` and marks the array modified.
+ *
+ * ####Example:
+ *
+ *     // given documents based on the following
+ *     var Doc = mongoose.model('Doc', new Schema({ array: [Number] }));
+ *
+ *     var doc = new Doc({ array: [2,3,4] })
+ *
+ *     console.log(doc.array) // [2,3,4]
+ *
+ *     doc.array.set(1,"5");
+ *     console.log(doc.array); // [2,5,4] // properly cast to number
+ *     doc.save() // the change is saved
+ *
+ *     // VS not using array#set
+ *     doc.array[1] = "5";
+ *     console.log(doc.array); // [2,"5",4] // no casting
+ *     doc.save() // change is not saved
+ *
+ * @return {Array} this
+ * @api public
+ */
+
+MongooseArray.prototype.set = function set (i, val) {
+  this[i] = this._cast(val);
+  this._markModified(i);
+  return this;
+}
 
 /**
  * Returns a native js Array.
