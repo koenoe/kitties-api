@@ -47,7 +47,7 @@ app.listen(app.get('port'), function(){
 app.namespace('/', model.photo(app));
 
 // Cronjob 500px
-new cronJob('0 */5 * * * *', function(){
+new cronJob('0 */10 * * * *', function(){
 	var api_500px = new _api_500px({
 		consumer_key: 'QAevASFNU0CYQ4Ryvs3Fs42JH1Y0rQozZrbfAmju',
 		consumer_secret: 'ViTsZM3uYYUSqzleddxBinzagPkx68ng2RnGupXg'
@@ -64,7 +64,7 @@ new cronJob('0 */5 * * * *', function(){
 }, null, true);
 
 // Cronjob Flickr
-new cronJob('0 */5 * * * *', function(){
+new cronJob('0 */10 * * * *', function(){
 	var api_flickr = new _api_flickr({
 		api_key: 'e46c6b70ba7ada632df962c7dc980b51',
 		api_secret: '77bed8eb5f5e2cdc'
