@@ -28,7 +28,7 @@ var ExceptionSchema = new Schema({
 // Connect to mongoDB
 var connect = function(callback){
 	if(process.env.NODE_ENV == 'production'){
-		mongoose.connect('mongodb://<username>:<password>@ds037647.mongolab.com:37647/kitties-api',callback);
+		mongoose.connect('mongodb://koenoe:3Baco900@ds037647.mongolab.com:37647/kitties-api',callback);
 	} else {
 		mongoose.connect('mongodb://localhost/photos', callback);
 	}
