@@ -46,35 +46,35 @@ app.listen(app.get('port'), function(){
 // Namespaces
 app.namespace('/', model.photo(app));
 
-// // Cronjob 500px
-// new cronJob('0 */10 * * * *', function(){
-// 	var api_500px = new _api_500px({
-// 		consumer_key: 'QAevASFNU0CYQ4Ryvs3Fs42JH1Y0rQozZrbfAmju',
-// 		consumer_secret: 'ViTsZM3uYYUSqzleddxBinzagPkx68ng2RnGupXg'
-// 	});
+// Cronjob 500px
+new cronJob('0 */10 * * * *', function(){
+	var api_500px = new _api_500px({
+		consumer_key: 'QAevASFNU0CYQ4Ryvs3Fs42JH1Y0rQozZrbfAmju',
+		consumer_secret: 'ViTsZM3uYYUSqzleddxBinzagPkx68ng2RnGupXg'
+	});
 	
-// 	api_500px.doCall({
-// 		method: 'photos/search',
-// 		terms: ['kitten','kitty'],
-// 		showTags: true,
-// 		rpp: 100,
-// 		sort: 'created_at',
-// 		// sort: 'rating'
-// 	});
-// }, null, true);
+	api_500px.doCall({
+		method: 'photos/search',
+		terms: ['kitten'],
+		showTags: true,
+		rpp: 100,
+		sort: 'created_at',
+		// sort: 'rating'
+	});
+}, null, true);
 
-// // Cronjob Flickr
-// new cronJob('0 */10 * * * *', function(){
-// 	var api_flickr = new _api_flickr({
-// 		api_key: 'e46c6b70ba7ada632df962c7dc980b51',
-// 		api_secret: '77bed8eb5f5e2cdc'
-// 	});
+// Cronjob Flickr
+new cronJob('0 */10 * * * *', function(){
+	var api_flickr = new _api_flickr({
+		api_key: 'e46c6b70ba7ada632df962c7dc980b51',
+		api_secret: '77bed8eb5f5e2cdc'
+	});
 	
-// 	api_flickr.doCall({
-// 		method: 'flickr.photos.search',
-// 		text: ['kitten','kitty'],
-// 		per_page: 100,
-// 		sort: 'date-posted-desc'
-// 		// sort: 'interestingness-desc'
-// 	});
-// }, null, true);
+	api_flickr.doCall({
+		method: 'flickr.photos.search',
+		text: ['kitten'],
+		per_page: 100,
+		sort: 'date-posted-desc'
+		// sort: 'interestingness-desc'
+	});
+}, null, true);
