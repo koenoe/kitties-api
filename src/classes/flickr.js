@@ -223,6 +223,12 @@ api_flickr.prototype = {
 						this._search(newPath);
 					}.bind(this));
 				}
+				if(options.tags){
+					options.tags.forEach(function(tag){
+						var newPath = path + '&tags=' + tag;
+						this._search(newPath);
+					}.bind(this));
+				}
 			break;
 			case 'flickr.photos.getInfo': 
 				if(options.photo_id){
@@ -261,7 +267,9 @@ api_flickr.prototype = {
 							description: photo.description,
 							thumbnail: photo.thumbnail,
 							image: photo.image,
-							tags: photo.tags
+							tags: photo.tags,
+							reported: false,
+							views: 0
 						});
 						model.save(this._saveDataSuccess);
 					}

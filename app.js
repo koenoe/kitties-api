@@ -55,7 +55,8 @@ new cronJob('0 */10 * * * *', function(){
 	
 	api_500px.doCall({
 		method: 'photos/search',
-		terms: ['kitten'],
+		// terms: ['kitten'],
+		tags: ['kitten'],
 		showTags: true,
 		rpp: 100,
 		sort: 'created_at',
@@ -72,7 +73,8 @@ new cronJob('0 */10 * * * *', function(){
 	
 	api_flickr.doCall({
 		method: 'flickr.photos.search',
-		text: ['kitten'],
+		// text: ['kitten'],
+		tags: ['kitten'],
 		per_page: 100,
 		sort: 'date-posted-desc'
 		// sort: 'interestingness-desc'

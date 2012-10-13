@@ -131,7 +131,9 @@ api_500px.prototype = {
 										description: photo.description,
 										thumbnail: thumbnail,
 										image: image,
-										tags: photo.tags
+										tags: photo.tags,
+										reported: false,
+										views: 0
 									});
 									model.save(this._saveDataSuccess);
 								}

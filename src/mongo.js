@@ -17,7 +17,9 @@ var PhotoSchema = new Schema({
 	description: {type: String},
 	thumbnail: {type: String, required: true},
 	image: {type: String, required: true},
-	tags: [String]
+	tags: [String],
+	reported: {type: Boolean},
+	views: {type: Number}
 });
 
 // Exception
