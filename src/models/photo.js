@@ -102,7 +102,7 @@ var routes = {
 					error: 'Photo not found.'
 				});
 			} else {
-				photo.views = req.body.views || photo.views;
+				photo.interestingness = req.body.interestingness || photo.interestingness;
 				photo.reported = request.body.reported || photo.reported;
 				photo.save(function(err, photo) {
 					if(!err){
