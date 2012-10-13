@@ -17,7 +17,8 @@ var routes = {
 	},
 	list: function(req, res){
 		mongo.Photo.find(null,null,{
-			limit:req.params.limit
+			limit:req.params.limit,
+			skip: req.params.skip || 0
 		},function(err,photos){
 			res.send(200, {
 				results: photos
@@ -85,6 +86,31 @@ var routes = {
 			}
 		});
 	},
+	update: function(req, res){
+		mongo.Photo.findOne({
+			externalID: request.params.externalID
+		}, function(err, photo) {
+			if (err) {
+				res.send(400,{
+					error: 'Something went wrong updating this photo.'
+				});
+			} else if (!photo) {
+				res.send(404,{
+					error: 'Photo not found.'
+				});
+			} else {
+				photo.views = req.body.views || photo.views;
+				photo.reported = request.body.reported || photo.reported;
+				photo.save(function(err, photo) {
+					if(!err){
+						res.send(200, {
+							message: 'Photo successfully updated.'
+						});
+					}
+				});
+			}
+		});
+	},
 	create: function(req, res){
 		if(!req.body.externalID || !req.body.name || !req.body.image || !req.body.thumbnail){
 			res.send(400, {
@@ -97,7 +123,9 @@ var routes = {
 				description: req.body.description,
 				thumbnail: req.body.thumbnail,
 				image: req.body.image,
-				tags: req.body.tags
+				tags: req.body.tags,
+				reported: false,
+				views: req.body.views
 			});
 			model.save(function(err,photo){
 				if(!err){
@@ -115,9 +143,11 @@ module.exports = function(app) {
 	return function() {
 		app.get('', routes.index);
 		app.get('list/:limit', routes.list);
+		app.get('list/:limit/:skip', routes.list);
 		app.get('search/:keyword', routes.search);
 		app.get('random', routes.random);
 		app.del(':externalID', routes.destroy);
+		app.put(':externalID', routes.update);
 		app.post('', routes.create);
 	}
 }
