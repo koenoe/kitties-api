@@ -267,9 +267,7 @@ api_flickr.prototype = {
 							description: photo.description,
 							thumbnail: photo.thumbnail,
 							image: photo.image,
-							tags: photo.tags,
-							reported: false,
-							views: 0
+							tags: photo.tags
 						});
 						model.save(this._saveDataSuccess);
 					}

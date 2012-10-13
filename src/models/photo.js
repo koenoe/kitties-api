@@ -127,8 +127,7 @@ var routes = {
 				thumbnail: req.body.thumbnail,
 				image: req.body.image,
 				tags: req.body.tags,
-				reported: false,
-				views: req.body.views
+				interestingness: req.body.interestingness
 			});
 			model.save(function(err,photo){
 				if(!err){
