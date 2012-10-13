@@ -12,7 +12,8 @@ var Schema = mongoose.Schema;
 
 // Photo
 var PhotoSchema = new Schema({
-	externalID: {type: String, required: true, unique: true},
+	time: {type: Date, default: Date.now, index: {background: true}},
+	externalID: {type: String, required: true, unique: true, index: {background: true}},
 	name: {type: String},
 	description: {type: String},
 	thumbnail: {type: String, required: true},
@@ -24,7 +25,7 @@ var PhotoSchema = new Schema({
 
 // Exception
 var ExceptionSchema = new Schema({
-	externalID: {type: String, required: true, unique: true}
+	externalID: {type: String, required: true, unique: true, index: {background: true}}
 });
 
 // Connect to mongoDB

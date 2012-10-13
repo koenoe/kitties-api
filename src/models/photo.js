@@ -8,7 +8,9 @@ var mongo = require('../mongo');
 
 var routes = {
 	index: function(req, res) {
-		mongo.Photo.find(function(err,photos){
+		mongo.Photo.find(null,null,{
+			sort: { 'time': -1 }
+		},function(err,photos){
 			res.send(200, {
 				results: photos,
 				total: photos.length
@@ -18,7 +20,8 @@ var routes = {
 	list: function(req, res){
 		mongo.Photo.find(null,null,{
 			limit:req.params.limit,
-			skip: req.params.skip || 0
+			skip: req.params.skip || 0,
+			sort: { 'time': -1 }
 		},function(err,photos){
 			res.send(200, {
 				results: photos
