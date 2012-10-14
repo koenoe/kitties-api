@@ -106,7 +106,7 @@ var routes = {
 	},
 	update: function(req, res){
 		mongo.Photo.findOne({
-			externalID: request.params.externalID
+			externalID: req.params.externalID
 		}, function(err, photo) {
 			if (err) {
 				res.send(400,{
@@ -118,7 +118,7 @@ var routes = {
 				});
 			} else {
 				photo.interestingness = req.body.interestingness || photo.interestingness;
-				photo.reported = request.body.reported || photo.reported;
+				photo.reported = req.body.reported || photo.reported;
 				photo.save(function(err, photo) {
 					if(!err){
 						res.send(200, {
