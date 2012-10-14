@@ -33,8 +33,7 @@ var routes = {
 	total: function(req, res) {
 		mongo.Photo.count(function(err,result){
 			res.send(200, {
-				total: result,
-				ip: getClientIp(req)
+				total: result
 			});
 		});	
 	},
@@ -86,34 +85,69 @@ var routes = {
 		});	
 	},
 	destroy: function(req, res){
-		mongo.Photo.findOne({
-			externalID: req.params.externalID
-		}, function(err,photo){
-			if(err){
-				res.send(400,{
-					error: 'Something went wrong removing this photo.'
-				});
-			}
-			if(!photo){
-				res.send(404,{
-					error: 'Photo not found.'
-				});
-			} else {
-				// Remove from photos collection
-				photo.remove(function(err, result){
-					if(!err){
-						// Add to exceptions collection
-						var model = new mongo.Exception({
-							externalID: req.params.externalID
-						});
-						model.save(function(err,exception){
-							if(!err){
-								res.send(200, {
-									message: 'Photo successfully removed and added to exceptions.'
+
+		if(process.env.NODE_ENV == 'production' && getClientIp(req) != "213.46.88.138"){
+			res.send(403, {
+				message: "This method is not available for you."
+			});
+			return false;
+		}
+
+		// Remove all reported pictures
+		mongo.Photo.find({ reported: true }, function(err,photos){
+			if(photos.length > 0){
+				async.waterfall(
+					[
+						function(callback) {
+							var i = 0;
+							photos.forEach(function(photo){
+								// Add to exceptions collection
+								var model = new mongo.Exception({
+									externalID: photo.externalID
 								});
+								model.save(function(err,exception){
+									if(!err){
+										i++;
+									}
+								});
+							});
+							if(i == photos.length){
+								callback(null, photos);
 							}
-						});
+						},
+						function(photos, callback) {
+							var i = 0;
+							photos.forEach(function(photo){
+								photo.remove(function(err, result){
+									if(!err){
+										i++;
+									}
+								});
+							});
+							if(i == photos.length){
+								callback(null, true);
+							}
+						}					
+					],
+					function(err, success) {
+						if(success){
+							res.send(200,{
+								message: 'Reported images successfully destroyed.'
+							});
+							return false;
+						}
+						if(err){
+							res.send(400,{
+								error: 'Something went wrong destroying reported images.'
+							});
+							return false;
+						}
 					}
+				);
+				
+			} else {
+				res.send(404, {
+					message: 'No reported images found.'
 				});
 			}
 		});
@@ -180,7 +214,7 @@ module.exports = function(app) {
 		app.get('search/:keyword', routes.search);
 		app.get('random', routes.random);
 		app.get('reported', routes.reported);
-		app.del(':externalID', routes.destroy);
+		app.del('', routes.destroy);
 		app.put(':externalID', routes.update);
 		app.post('', routes.create);
 	}
