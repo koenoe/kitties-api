@@ -123,6 +123,8 @@ api_500px.prototype = {
 										}
 									});
 								}
+								// Calculate interestingness based on views,comments,favorites
+								var interestingness = this._calculateInterestingness(photo.times_viewed,photo.comments_count,photo.favorites_count);
 								// If there is an image and thumbnail, save it
 								if(thumbnail && image){
 									var model = new mongo.Photo({
@@ -131,7 +133,8 @@ api_500px.prototype = {
 										description: photo.description,
 										thumbnail: thumbnail,
 										image: image,
-										tags: photo.tags
+										tags: photo.tags,
+										interestingness: interestingness
 									});
 									model.save(this._saveDataSuccess);
 								}
@@ -144,6 +147,16 @@ api_500px.prototype = {
 	},
 	_saveDataSuccess: function(){
 		console.log('save success for this picture of 500px!');
+	},
+	_calculateInterestingness: function(views,comments,favorites){
+		var interestingness = 0;
+		interestingness += parseInt(views);
+		interestingness += parseInt(comments * 2);
+		interestingness += parseInt(favorites * 3);
+		if(interestingness > 0){
+			return Math.round(interestingness / 3);
+		}
+		return 0;
 	}
 };
 

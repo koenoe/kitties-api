@@ -101,10 +101,12 @@ api_flickr.prototype = {
 			res.on('end', function() {
 				try {
 					var json = JSON.parse(data);
-					if(json.photo && json.photo.tags){
+					if(json.photo){
+
+						var photo = this._getPhoto(id);
 						
 						var tags = [];
-						if(json.photo.tags.tag){
+						if(json.photo.tags && json.photo.tags.tag){
 							json.photo.tags.tag.forEach(function(tag){
 								tags.push(tag._content);
 							});
@@ -113,9 +115,11 @@ api_flickr.prototype = {
 						var extraInfo = {
 							name: json.photo.title._content,
 							description: json.photo.description._content,
-							tags: tags
+							tags: tags,
+							views: json.photo.views,
+							comments: json.photo.comments._content
 						};
-						var photo = this._getPhoto(id);
+						
 						photo = this.mergeObj(photo,extraInfo);
 						this._setPhoto(id,photo);
 
@@ -175,7 +179,7 @@ api_flickr.prototype = {
 							this._setPhoto(id,photo);
 
 							this.doCall({
-								method: 'flickr.photos.getInfo',
+								method: 'flickr.photos.getFavorites',
 								photo_id: id
 							});
 						}
@@ -185,6 +189,53 @@ api_flickr.prototype = {
 					}
 				} catch(e){
 					console.log('Error parsing image sizes for this picture.', e);
+				}
+			}.bind(this));
+		}.bind(this));
+		// On error
+		req.on('error', function(e) {
+			console.log('API call search flickr error: ' + e.message);
+		});
+	},
+	_getFavoriteCount: function(path, id){
+		// Define request
+		var options = {
+			host: this.getHost(),
+			path: path
+		};
+
+		// Https request to search in flickr
+		var req = http.get(options, function(res){
+			// When there is data
+			var data = '';
+			res.on('data', function(d) {
+				data += d;
+			});
+			// On end parse JSON
+			res.on('end', function() {
+				try {
+					var json = JSON.parse(data);
+					
+					var favorites = 0;
+					if(json.photo.total){
+						favorites = json.photo.total;
+					}
+
+					var extraInfo = {
+						favorites: favorites
+					};
+
+					var photo = this._getPhoto(id);
+					photo = this.mergeObj(photo,extraInfo);
+					this._setPhoto(id,photo);
+
+					this.doCall({
+						method: 'flickr.photos.getInfo',
+						photo_id: id
+					});
+
+				} catch(e){
+					console.log('Error parsing favorite count for this picture.', e);
 				}
 			}.bind(this));
 		}.bind(this));
@@ -242,6 +293,12 @@ api_flickr.prototype = {
 					this._getSizes(newPath, options.photo_id);
 				}
 			break;
+			case 'flickr.photos.getFavorites':
+				if(options.photo_id){
+					var newPath = path + '&photo_id=' + options.photo_id;
+					this._getFavoriteCount(newPath, options.photo_id);
+				}
+			break;
 		}
 		return false;
 	},
@@ -261,13 +318,15 @@ api_flickr.prototype = {
 						console.log('Something went wrong saving this item.');
 					} else if(!item){
 						// Save it
+						var interestingness = this._calculateInterestingness(photo.views,photo.comments,photo.favorites);
 						var model = new mongo.Photo({
 							externalID: photo.externalID,
 							name: photo.name,
 							description: photo.description,
 							thumbnail: photo.thumbnail,
 							image: photo.image,
-							tags: photo.tags
+							tags: photo.tags,
+							interestingness: interestingness
 						});
 						model.save(this._saveDataSuccess);
 					}
@@ -277,6 +336,16 @@ api_flickr.prototype = {
 	},
 	_saveDataSuccess: function(){
 		console.log('save success for this picture of flickr!');
+	},
+	_calculateInterestingness: function(views,comments,favorites){
+		var interestingness = 0;
+		interestingness += parseInt(views);
+		interestingness += parseInt(comments * 2);
+		interestingness += parseInt(favorites * 3);
+		if(interestingness > 0){
+			return Math.round(interestingness / 3);
+		}
+		return 0;
 	},
 	mergeObj: function(obj1,obj2){
 		var obj3 = {};
