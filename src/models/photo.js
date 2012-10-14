@@ -63,6 +63,14 @@ var routes = {
 			});
 		});
 	},
+	reported: function(req, res){
+		mongo.Photo.find({ reported: true }, function(err,photos){
+			res.send(200, {
+				results: photos,
+				total: photos.length
+			});
+		});	
+	},
 	destroy: function(req, res){
 		mongo.Photo.findOne({
 			externalID: req.params.externalID
@@ -156,6 +164,7 @@ module.exports = function(app) {
 		app.get('list/:limit/:skip', routes.list);
 		app.get('search/:keyword', routes.search);
 		app.get('random', routes.random);
+		app.get('reported', routes.reported);
 		app.del(':externalID', routes.destroy);
 		app.put(':externalID', routes.update);
 		app.post('', routes.create);
