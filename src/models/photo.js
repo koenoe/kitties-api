@@ -17,6 +17,13 @@ var routes = {
 			});
 		});	
 	},
+	total: function(req, res) {
+		mongo.Photo.count(function(err,result){
+			res.send(200, {
+				total: result
+			});
+		});	
+	},
 	list: function(req, res){
 		mongo.Photo.find(null,null,{
 			limit:req.params.limit,
@@ -144,6 +151,7 @@ var routes = {
 module.exports = function(app) {
 	return function() {
 		app.get('', routes.index);
+		app.get('total', routes.total);
 		app.get('list/:limit', routes.list);
 		app.get('list/:limit/:skip', routes.list);
 		app.get('search/:keyword', routes.search);
