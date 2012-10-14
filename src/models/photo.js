@@ -6,6 +6,19 @@
  */
 var mongo = require('../mongo');
 
+function getClientIp(req) {
+	var ipAddress = null;
+	var forwardedIpsStr = req.header('x-forwarded-for'); 
+	if (forwardedIpsStr) {	
+		var forwardedIps = forwardedIpsStr.split(',');
+		ipAddress = forwardedIps[0];
+	}
+	if (!ipAddress) {
+		ipAddress = req.connection.remoteAddress;
+	}
+	return ipAddress;
+};
+
 var routes = {
 	index: function(req, res) {
 		mongo.Photo.find(null,null,{
@@ -20,7 +33,8 @@ var routes = {
 	total: function(req, res) {
 		mongo.Photo.count(function(err,result){
 			res.send(200, {
-				total: result
+				total: result,
+				ip: getClientIp(req)
 			});
 		});	
 	},
@@ -155,6 +169,7 @@ var routes = {
 		}
 	}
 };
+
 // Exports
 module.exports = function(app) {
 	return function() {
