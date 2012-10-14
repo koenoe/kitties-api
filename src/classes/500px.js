@@ -150,11 +150,11 @@ api_500px.prototype = {
 	},
 	_calculateInterestingness: function(views,comments,favorites){
 		var interestingness = 0;
-		interestingness += parseInt(views);
-		interestingness += parseInt(comments * 2);
-		interestingness += parseInt(favorites * 3);
+		// interestingness += parseInt(views);
+		interestingness += parseInt(comments);
+		interestingness += parseInt(favorites);
 		if(interestingness > 0){
-			return Math.round(interestingness / 3);
+			return interestingness;
 		}
 		return 0;
 	}
