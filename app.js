@@ -59,8 +59,8 @@ new cronJob('0 */10 * * * *', function(){
 		tags: ['kitten'],
 		showTags: true,
 		rpp: 100,
-		// sort: 'created_at',
-		sort: 'rating'
+		sort: 'created_at',
+		// sort: 'rating'
 	});
 }, null, true);
 
@@ -76,7 +76,7 @@ new cronJob('0 */10 * * * *', function(){
 		// text: ['kitten'],
 		tags: ['kitten'],
 		per_page: 100,
-		// sort: 'date-posted-desc'
-		sort: 'interestingness-desc'
+		sort: 'date-posted-desc'
+		// sort: 'interestingness-desc'
 	});
 }, null, true);
