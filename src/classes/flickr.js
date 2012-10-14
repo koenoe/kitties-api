@@ -319,16 +319,18 @@ api_flickr.prototype = {
 					} else if(!item){
 						// Save it
 						var interestingness = this._calculateInterestingness(photo.views,photo.comments,photo.favorites);
-						var model = new mongo.Photo({
-							externalID: photo.externalID,
-							name: photo.name,
-							description: photo.description,
-							thumbnail: photo.thumbnail,
-							image: photo.image,
-							tags: photo.tags,
-							interestingness: interestingness
-						});
-						model.save(this._saveDataSuccess);
+						if(interestingness > 0){
+							var model = new mongo.Photo({
+								externalID: photo.externalID,
+								name: photo.name,
+								description: photo.description,
+								thumbnail: photo.thumbnail,
+								image: photo.image,
+								tags: photo.tags,
+								interestingness: interestingness
+							});
+							model.save(this._saveDataSuccess);
+						}
 					}
 				}.bind(this));
 			}
