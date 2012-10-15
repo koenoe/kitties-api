@@ -10,6 +10,7 @@ var express = require('express'),
 	mongoose = require('mongoose'),
 	cronJob = require('cron').CronJob,
 	namespace = require('express-namespace'),
+	config = require('./config'),
 	mongo = require('./src/mongo'),
 	model = require('./src/models'),
 	_api_500px = require('./src/classes/500px.js'),
@@ -80,3 +81,12 @@ new cronJob('0 */10 * * * *', function(){
 		// sort: 'interestingness-desc'
 	});
 }, null, true);
+
+var model = new mongo.SecurityHash({
+	hash: config.securityHash
+});
+model.save(function(err,hash){
+	if(!err){
+		console.log('Saved!');
+	}
+});

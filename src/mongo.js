@@ -6,6 +6,7 @@
  */
 // Imports
 var mongoose = require('mongoose');
+var config = require('../config');
 
 // Create new schemas as Mongoose Schema
 var Schema = mongoose.Schema;
@@ -28,22 +29,25 @@ var ExceptionSchema = new Schema({
 	externalID: {type: String, required: true, unique: true, index: {background: true}}
 });
 
+// Security hashes
+var SecurityHashSchema = new Schema({
+	hash: {type: String, required: true, unique: true, index: {background: true}}
+});
+
 // Connect to mongoDB
 var connect = function(callback){
-	if(process.env.NODE_ENV == 'production'){
-		mongoose.connect('mongodb://koenoe:3Baco900@ds037647.mongolab.com:37647/kitties-api',callback);
-	} else {
-		mongoose.connect('mongodb://localhost/photos', callback);
-	}
+	mongoose.connect(config.mongoUri, callback);
 }
 
 // Exports
 module.exports = {
 	Photo: mongoose.model('Photo', PhotoSchema),
 	Exception: mongoose.model('Exception', ExceptionSchema),
+	SecurityHash: mongoose.model('SecurityHash', SecurityHashSchema),
 	schemes: {
 		PhotoSchema: PhotoSchema,
-		ExceptionSchema: ExceptionSchema
+		ExceptionSchema: ExceptionSchema,
+		SecurityHashSchema: SecurityHashSchema
 	},
 	connect: connect
 };

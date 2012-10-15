@@ -5,20 +5,85 @@
  * http://www.koenromers.com
  */
 var mongo = require('../mongo');
+var config = require('../../config');
 
-function getClientIp(req) {
-	var ipAddress = null;
-	var forwardedIpsStr = req.header('x-forwarded-for'); 
-	if (forwardedIpsStr) {	
-		var forwardedIps = forwardedIpsStr.split(',');
-		ipAddress = forwardedIps[0];
-	}
-	if (!ipAddress) {
-		ipAddress = req.connection.remoteAddress;
-	}
-	return ipAddress;
+function checkSecurityHash(req,res,callback) {
+	mongo.SecurityHash.findOne({
+		hash: config.securityHash
+	}, function(err, doc) {
+		if (err) {
+			res.send(400,{
+				error: 'Something went wrong checking the security hash.'
+			});
+		} else if (!doc) {
+			res.send(403,{
+				error: 'Invalid security hash.'
+			});
+		} else {
+			callback(req,res);
+		}
+	});
 };
-var allowedIp = "213.46.88.138";
+
+function destroyPhoto(req,res){
+	mongo.Photo.findOne({
+		externalID: req.params.externalID
+	}, function(err,photo){
+		if(err){
+			res.send(400,{
+				error: 'Something went wrong removing this photo.'
+			});
+		}
+		if(!photo){
+			res.send(404,{
+				error: 'Photo not found.'
+			});
+		} else {
+			// Remove from photos collection
+			photo.remove(function(err, result){
+				if(!err){
+					// Add to exceptions collection
+					var model = new mongo.Exception({
+						externalID: req.params.externalID
+					});
+					model.save(function(err,exception){
+						if(!err){
+							res.send(200, {
+								message: 'Photo successfully removed and added to exceptions.'
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+};
+
+function createPhoto(req,res){
+	if(!req.body.externalID || !req.body.name || !req.body.image || !req.body.thumbnail){
+		res.send(400, {
+			error: 'Object is missing fields.'
+		});
+	} else {
+		var model = new mongo.Photo({
+			externalID: req.body.externalID,
+			name: req.body.name,
+			description: req.body.description,
+			thumbnail: req.body.thumbnail,
+			image: req.body.image,
+			tags: req.body.tags,
+			interestingness: req.body.interestingness
+		});
+		model.save(function(err,photo){
+			if(!err){
+				res.send(200, {
+					message: 'Photo successfully added.',
+					_id: photo._id
+				});
+			}
+		});
+	}
+};
 
 var routes = {
 	index: function(req, res) {
@@ -86,45 +151,7 @@ var routes = {
 		});	
 	},
 	destroy: function(req, res){
-
-		if(getClientIp(req) != allowedIp){
-			res.send(403, {
-				message: "This method is not available for you."
-			});
-			return false;
-		}
-
-		mongo.Photo.findOne({
-			externalID: req.params.externalID
-		}, function(err,photo){
-			if(err){
-				res.send(400,{
-					error: 'Something went wrong removing this photo.'
-				});
-			}
-			if(!photo){
-				res.send(404,{
-					error: 'Photo not found.'
-				});
-			} else {
-				// Remove from photos collection
-				photo.remove(function(err, result){
-					if(!err){
-						// Add to exceptions collection
-						var model = new mongo.Exception({
-							externalID: req.params.externalID
-						});
-						model.save(function(err,exception){
-							if(!err){
-								res.send(200, {
-									message: 'Photo successfully removed and added to exceptions.'
-								});
-							}
-						});
-					}
-				});
-			}
-		});
+		checkSecurityHash(req,res,destroyPhoto);
 	},
 	update: function(req, res){
 		mongo.Photo.findOne({
@@ -152,36 +179,7 @@ var routes = {
 		});
 	},
 	create: function(req, res){
-		if(getClientIp(req) != allowedIp){
-			res.send(403, {
-				message: "This method is not available for you."
-			});
-			return false;
-		}
-		
-		if(!req.body.externalID || !req.body.name || !req.body.image || !req.body.thumbnail){
-			res.send(400, {
-				error: 'Object is missing fields.'
-			});
-		} else {
-			var model = new mongo.Photo({
-				externalID: req.body.externalID,
-				name: req.body.name,
-				description: req.body.description,
-				thumbnail: req.body.thumbnail,
-				image: req.body.image,
-				tags: req.body.tags,
-				interestingness: req.body.interestingness
-			});
-			model.save(function(err,photo){
-				if(!err){
-					res.send(200, {
-						message: 'Photo successfully added.',
-						_id: photo._id
-					});
-				}
-			});
-		}
+		checkSecurityHash(req,res, createPhoto);
 	}
 };
 
