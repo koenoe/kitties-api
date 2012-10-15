@@ -139,8 +139,8 @@ var routes = {
 					error: 'Photo not found.'
 				});
 			} else {
+				photo.reported = (req.body.reported == 'true' ? true : false);
 				photo.interestingness = req.body.interestingness || photo.interestingness;
-				photo.reported = req.body.reported || photo.reported;
 				photo.save(function(err, photo) {
 					if(!err){
 						res.send(200, {
