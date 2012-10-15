@@ -319,7 +319,7 @@ api_flickr.prototype = {
 					} else if(!item){
 						// Save it
 						var interestingness = this._calculateInterestingness(photo.views,photo.comments,photo.favorites);
-						if(interestingness > 1){
+						if(interestingness > 3){
 							var model = new mongo.Photo({
 								externalID: photo.externalID,
 								name: photo.name,

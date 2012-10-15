@@ -126,7 +126,7 @@ api_500px.prototype = {
 								// Calculate interestingness based on views,comments,favorites
 								var interestingness = this._calculateInterestingness(photo.times_viewed,photo.comments_count,photo.favorites_count);
 								// If there is an image and thumbnail, save it
-								if(interestingness > 1 && thumbnail && image){
+								if(interestingness > 3 && thumbnail && image){
 									var model = new mongo.Photo({
 										externalID: photo.id,
 										name: photo.name,
