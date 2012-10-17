@@ -85,10 +85,18 @@ function createPhoto(req,res){
 	}
 };
 
+function getSorting(req){
+	var sorting = {'time': -1};
+	if(req.query.sort == 'interestingness'){
+		sorting = {'interestingness': -1};
+	}
+	return sorting;
+};
+
 var routes = {
 	index: function(req, res) {
 		mongo.Photo.find(null,null,{
-			sort: { 'time': -1 }
+			sort: getSorting(req)
 		},function(err,photos){
 			res.send(200, {
 				results: photos,
@@ -107,7 +115,7 @@ var routes = {
 		mongo.Photo.find(null,null,{
 			limit:req.params.limit,
 			skip: req.params.skip || 0,
-			sort: { 'time': -1 }
+			sort: getSorting(req)
 		},function(err,photos){
 			res.send(200, {
 				results: photos

@@ -21,7 +21,7 @@ var PhotoSchema = new Schema({
 	image: {type: String, required: true},
 	tags: [String],
 	reported: {type: Boolean, default: false},
-	interestingness: {type: Number, default: 0}
+	interestingness: {type: Number, default: 0, index: {background: true}}
 });
 
 // Exception
